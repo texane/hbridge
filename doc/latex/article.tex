@@ -1,0 +1,155 @@
+\documentclass[12pt]{article}
+
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{color}
+
+
+%%
+\title{An educationnal HBRIDGE board}
+
+\author{Fabien Le Mentec\\
+\small \texttt{texane@gmail.com}
+}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document describes an educationnal HBRIDGE board whose prime goal is to learn more about alectronics.
+\end{abstract}
+
+
+%% Introduction
+\section{Introduction}
+
+\subsection{Purpose}
+\paragraph{} I wanted a small project to learn more about electronics basics. Since I regularly need to
+drive a DC motors, I chose to work on a home made HBRIDGE board described in this document. Note that
+the circuit uses off the shelf parts and can be more complicated than needed and not efficient. A real
+application should use packaged HBRIDGE circuits.
+
+
+%% Features
+\section{Features}
+\paragraph{} The board features:
+\begin{itemize}
+  \item safe H signalling interface avoid conflicting states
+    \begin{itemize}
+      \item PWM,
+      \item FORWARD,
+      \item BRAKE.
+    \end{itemize}
+  \item controlling software
+    \begin{itemize}
+      \item coding done by XXX
+    \end{itemize}
+  \item power stage driving up to XXX motors.
+\end{itemize}
+
+
+%% Theory of operation
+\section{HBRIDGE theory of operation}
+\paragraph{} An HBRIDGE is a circuit allowing to drive DC motors in both direction. The name comes from the
+circuit routing which looks like the 'H' alphabet letter.
+
+
+%% Safe H signalling interface
+\section{Safe H signalling interface}
+
+\paragraph{} Since I have a software background it is easier for me to think in terms of C programming control
+structures. I thus expressed the H state machine in a C code which I translated into logical statement. I used
+this statement set to design the H state circuit using electronic gates.
+
+\begin{tiny}
+\lstset{commentstyle=\color{blue}}
+\lstset{language=C}
+\begin{lstlisting}[frame=tb]
+if (BRAKE == 0)
+{
+  if (FWD == 1)
+  {
+    Q01 = 0;
+    Q10 = 0;
+    Q11 = 1;
+
+    Q00 = PWM;
+  }
+  else /* REVERSE */
+  {
+    Q00 = 0;
+    Q01 = 1;
+    Q11 = 0;
+
+    Q10 = PWM;
+  }
+}
+else /* (BRAKE == 1) */
+{
+  Q00 = 1;
+  Q01 = 1;
+  Q10 = 1;
+  Q11 = 1;
+}
+\end{lstlisting}
+\end{tiny}
+
+The set of logical statments reduces to:
+\begin{tiny}
+\lstset{commentstyle=\color{blue}}
+\lstset{language=C}
+\begin{lstlisting}[frame=tb]
+Q00 = (FWD & PWM)    | BRAKE;
+Q01 = (!FWD)         | BRAKE;
+Q10 = ((!FWD) & PWM) | BRAKE;
+Q11 = FWD            | BRAKE;
+\end{lstlisting}
+\end{tiny}
+
+The following circuit implements it:
+
+
+%% Bill of materials
+\section{Bill of materials}
+TODO
+
+
+%% Status
+\section{Status}
+\begin{itemize}
+  \item PWM / FORWARD / BRAKE signaling interface: PROTOTYPED
+  \item control software: TODO
+  \item power stage: TODO
+  \item documentation: STARTED
+\end{itemize}
+
+
+%% Conclusion
+\section{Conclusion}
+TODO
+
+
+%% References
+\section{Further readings}
+
+\subsection{HBRIDGE projects}
+\begin{itemize}
+  \item http://embedded-lab.com/blog/?p=1159
+  \item http://www.mcmanis.com/chuck/robotics/tutorial/h-bridge
+  \item http://www.modularcircuits.com/h-bridge\_secrets1.htm
+  \item http://www.solarbotics.net/library/circuits/driver\_4varHbridge.html
+  \item http://www.solarbotics.net/library/circuits/driver\_buf\_h.html
+  \item http://www.robotroom.com/HBridge.html
+  \item http://www.robotroom.com/BipolarHBridge.html
+\end{itemize}
+
+\subsection{Controlling software}
+\begin{itemize}
+  \item http://www.seattlerobotics.org/encoder/200001/simplemotor.htm
+\end{itemize}
+
+
+%% TODO
+\end{document}
