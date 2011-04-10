@@ -3,10 +3,11 @@
 \usepackage{verbatim}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{graphicx}
 
 
 %%
-\title{An educationnal HBRIDGE board}
+\title{An educationnal H bridge board}
 
 \author{Fabien Le Mentec\\
 \small \texttt{texane@gmail.com}
@@ -18,25 +19,27 @@
 \maketitle
 
 \begin{abstract}
-This document describes an educationnal HBRIDGE board whose prime goal is to learn more about alectronics.
+This document describes an educationnal H bridge board whose prime goal is to learn more about electronics.
 \end{abstract}
 
 
 %% Introduction
+\newpage
 \section{Introduction}
 
 \subsection{Purpose}
 \paragraph{} I wanted a small project to learn more about electronics basics. Since I regularly need to
-drive a DC motors, I chose to work on a home made HBRIDGE board described in this document. Note that
+drive a DC motors, I chose to work on a home made H bridge board described in this document. Note that
 the circuit uses off the shelf parts and can be more complicated than needed and not efficient. A real
-application should use packaged HBRIDGE circuits.
+application should use packaged H bridge circuits.
 
 
 %% Features
+\newpage
 \section{Features}
 \paragraph{} The board features:
 \begin{itemize}
-  \item safe H signalling interface avoid conflicting states
+  \item 3 wires, safe H signaling interface, avoiding invalid transistor states
     \begin{itemize}
       \item PWM,
       \item FORWARD,
@@ -51,22 +54,64 @@ application should use packaged HBRIDGE circuits.
 
 
 %% Theory of operation
-\section{HBRIDGE theory of operation}
-\paragraph{} An HBRIDGE is a circuit allowing to drive DC motors in both direction. The name comes from the
-circuit routing which looks like the 'H' alphabet letter.
+\newpage
+\section{H bridge theory of operation}
+\paragraph{} An H bridge is a circuit allowing to drive DC motors in both direction. The name comes from the
+typical circuit graphical representation which looks like the 'H' alphabet letter.
 
+\begin{center}
+  \includegraphics[keepaspectratio=true, width=40mm]{../pics/hbridge_base.jpg}
+  \\
+  \smallskip
+  \tiny{\textit{H bridge circuit}}
+\end{center}
 
-%% Safe H signalling interface
-\section{Safe H signalling interface}
+QXX are transistors allowing the current flowing through the DC motor to be electrically controlled. I am
+interested in 3 configurations:
+
+\begin{center}
+  \begin{tabular}{c|c|c}
+    \includegraphics[keepaspectratio=true, width=40mm]{../pics/hbridge_forward.jpg} &
+    \includegraphics[keepaspectratio=true, width=40mm]{../pics/hbridge_reverse.jpg} &
+    \includegraphics[keepaspectratio=true, width=40mm]{../pics/hbridge_brake.jpg} \\
+    \tiny{\textit{FORWARD mode}} & \tiny{\textit{REVERSE mode}} & \tiny{\textit{BRAKE mode}}
+  \end{tabular}
+\end{center}
+
+%% H signaling interface
+\newpage
+\section{H signaling interface}
+
+\paragraph{} The H bridge expects a correct transistor configuration to work. Even worth, an incorrect setup can
+damage the circuit. I designed a 3 wire signaling interface to address this issue:
+
+\smallskip
+\begin{center}
+  \begin{tabular}{|c|c|}
+    \hline
+    \textit{Name} & \textit{Description} \\
+    \hline
+    FWD & controls the motor direction \\
+    \hline
+    PWM & controls the motor speed \\
+    \hline
+    BRAKE & slow the motor down until it stops \\
+    \hline
+  \end{tabular}
+  \\
+  \smallskip
+  \tiny{\textit{H control signals}}
+\end{center}
 
 \paragraph{} Since I have a software background it is easier for me to think in terms of C programming control
-structures. I thus expressed the H state machine in a C code which I translated into logical statement. I used
-this statement set to design the H state circuit using electronic gates.
+structures. I thus express the H state machine in a C code which I then translate into logical statements. I
+use the resulting statement set to design the H state circuit using electronic gates.
 
+\smallskip
 \begin{tiny}
-\lstset{commentstyle=\color{blue}}
-\lstset{language=C}
-\begin{lstlisting}[frame=tb]
+  \lstset{commentstyle=\color{blue}}
+  \lstset{language=C}
+  \begin{lstlisting}[frame=tb]
 if (BRAKE == 0)
 {
   if (FWD == 1)
@@ -93,30 +138,82 @@ else /* (BRAKE == 1) */
   Q10 = 1;
   Q11 = 1;
 }
-\end{lstlisting}
+  \end{lstlisting}
 \end{tiny}
 
-The set of logical statments reduces to:
+\smallskip
+The above code reduces to the following set of logical statments:
 \begin{tiny}
-\lstset{commentstyle=\color{blue}}
-\lstset{language=C}
-\begin{lstlisting}[frame=tb]
+  \lstset{commentstyle=\color{blue}}
+  \lstset{language=C}
+  \begin{lstlisting}[frame=tb]
 Q00 = (FWD & PWM)    | BRAKE;
 Q01 = (!FWD)         | BRAKE;
 Q10 = ((!FWD) & PWM) | BRAKE;
 Q11 = FWD            | BRAKE;
-\end{lstlisting}
+  \end{lstlisting}
 \end{tiny}
 
-The following circuit implements it:
+\smallskip
+\pagebreak
+These 4 statements are implemented by the following circuit:
+\begin{center}
+  \includegraphics[keepaspectratio=true, width=1.\textwidth]{../pics/h_control.png}
+  \\
+  \smallskip
+  \tiny{\textit{H control circuit}}
+\end{center}
+
+Note that I do not have OR gates, so I used NOR gates and inverters. It complexifies the circuit a bit.
+Apart from that, the logical statements are naively implemented using electronic gates.
+
+\smallskip
+\begin{center}
+  \begin{tabular}{|c|c|c|}
+    \hline
+    \textit{Reference} & \textit{Quantity} & \textit{Description} \\
+    \hline
+    SN74LS02N & 1 & quad 2 input NOR gates \\
+    \hline
+    SN74LS04N & 1 & hex inverter \\
+    \hline
+    SN74LS08N & 1 & quad 2 input AND gates \\
+    \hline
+    Resistors & 5 & 2.4k ohms \\
+    \hline
+    LEDS & 4 & \\
+    \hline
+  \end{tabular}
+  \\
+  \smallskip
+  \tiny{\textit{part list}}
+\end{center}
+
+\smallskip
+\pagebreak
+Picture of the prototyped circuit, with switchs added for testing:
+\begin{center}
+  \includegraphics[keepaspectratio=true, width=1.\textwidth]{../pics/h_control_breadboard.png}
+  \\
+  \smallskip
+  \tiny{\textit{H control circuit prototype}}
+\end{center}
 
 
-%% Bill of materials
-\section{Bill of materials}
+%% Power stage
+\newpage
+\section{Power stage}
+TODO
+
+
+%% Controlling software
+\newpage
+\section{Controlling software}
 TODO
 
 
 %% Status
+\newpage
 \section{Status}
 \begin{itemize}
   \item PWM / FORWARD / BRAKE signaling interface: PROTOTYPED
@@ -127,14 +224,16 @@ TODO
 
 
 %% Conclusion
+\newpage
 \section{Conclusion}
 TODO
 
 
 %% References
+\newpage
 \section{Further readings}
 
-\subsection{HBRIDGE projects}
+\subsection{H bridge projects}
 \begin{itemize}
   \item http://embedded-lab.com/blog/?p=1159
   \item http://www.mcmanis.com/chuck/robotics/tutorial/h-bridge
@@ -152,4 +251,12 @@ TODO
 
 
 %% TODO
+\section{TODO}
+
+\begin{itemize}
+\item ne555 + variable resistor to control motor speed
+\item controlling software 
+\end{itemize}
+
+
 \end{document}
