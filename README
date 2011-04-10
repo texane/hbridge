@@ -1,0 +1,15 @@
+DC motor hbridge board, educationnal purpose.
+
+The project directory tree is organized as follow:
+
+/src: the controlling software
+
+/doc
+/doc/pics: board related pictures
+/doc/vids: board related videos
+/doc/schs: eagle board schematics
+/doc/dshs: part datasheets
+/doc/latex: article latex source code
+
+Author:
+texane@gmail.com
