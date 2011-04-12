@@ -20,7 +20,7 @@
 \maketitle
 
 \begin{abstract}
-This document describes the basics of H bridges. The prime goal is to learn more about electronics.
+This document describes the basics of H bridges. The primary goal is to learn more about electronics.
 \end{abstract}
 
 
@@ -221,8 +221,8 @@ TODO: explain duty cycle, averaged total current as a function of time
 TODO
 
 \subsection{PWM using a NE555}
-\paragraph{} I use a NE555 chip in an astable setup to generate a PWM signal. The circuit is
-shown below:
+\paragraph{} I use a NE555 chip in an astable setup to generate a PWM signal. The Philips 555
+application note has been used as a reference for this section. The circuit is shown below:
 \begin{center}
   \includegraphics[keepaspectratio=true, width=1.\textwidth]{../pics/ne555_astable.png}
   \\
@@ -230,32 +230,48 @@ shown below:
   \tiny{\textit{NE555 astable setup}}
 \end{center}
 
-Ignoring Rpot, the frequency formula is given in the ne555 datasheet:
 \begin{center}
-  $ Frequency = \frac{1.49}{((Ra + 2 * Rb) * C1)} $
+  \includegraphics[keepaspectratio=true, width=60mm]{../pics/ne555_astable_circuit.png}
+  \\
+  \smallskip
+  \tiny{\textit{NE555 astable circuit}}
 \end{center}
 
-I use a pot to manually control the duty cycle, by varying voltage divider ratio. In
-the above circuit, the following values are used:
+2 things to note:
 \begin{itemize}
-\item Ra = Rb = 1k,
-\item Rpot = 10k,
+\item a pot is use to control the duty cycle by varying the voltage divider ratio,
+\item a diode between pins 6 and 7 has been added to allow a duty of less than 50\%.
+\end{itemize}
+
+The documentation gives the following formula:
+\begin{center}
+\framebox[3in][c]{$ Frequency = \frac{1.49}{((Ra + 2 * Rb) * C1)} $}
+\end{center}
+
+In the above circuit, the following values are used:
+\begin{itemize}
+\item Ra = 0 to 10k,
+\item Rb = 1k,
 \item C1 = 47n.
 \end{itemize}
 
 By substitution, we have:
 \begin{center}
-  $ \frac{1.49}{(2 * 10^3 + 11 * 10^4) * 47 * 10^-9} <= frequency <= \frac{1.49}{3 * 10^3 * 47 * 10^-9} $\\
+\framebox[4.5in][c]{$ \frac{1.49}{(2 * 10^3 + 10 * 10^4) * 47 * 10^-9} <= frequency <= \frac{1.49}{2 * 10^3 * 47 * 10^-9} $}
 \end{center}
 
 Thus:
 \begin{center}
-  $ 2438 <= frequency <= 10567 $
+\framebox[3in][c]{$ 2642 <= frequency <= 15851 $}
 \end{center}
 
-We verify the the frequency range using an oscilloscope:
+\begin{itemize}
+\item TODO: old result from a different configuration
+\item TODO: picture of the oscilloscope screen
+\end{itemize}
+The frequencies can be checked using an oscilloscope:
 \begin{center}
-  $ 2272 <= frequency <= 10000 $
+\framebox[3in][c]{$ 2272 <= frequency <= 10000 $}
 \end{center}
 
 \subsection{PWM using an AVR microcontroller}
@@ -297,6 +313,7 @@ TODO
   \item http://www.solarbotics.net/library/circuits/driver\_buf\_h.html
   \item http://www.robotroom.com/HBridge.html
   \item http://www.robotroom.com/BipolarHBridge.html
+  \item http://www.societyofrobots.com/schematics\_h-bridgedes.shtml
 \end{itemize}
 
 \subsection{Controlling software}
